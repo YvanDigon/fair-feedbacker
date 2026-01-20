@@ -1,95 +1,104 @@
 # yaml-language-server: $schema=./.kokimoki/schema.json
 
-# Translations
-title: 'Host Starter'
-
-gameLobbyMd: |
-  # Game Lobby
-
-  This is a sample markdown to demonstrate various markdown features.
-
-  ## Starting soon
-
-  Game is starting soon. **Get ready!**
-
-  ## Rules
-
-  1. Wait for the host to start the game.
-  2. Follow the instructions on the presenter screen.
-  3. Open [Games for Crowds](https://gamesforcrowds.com) for more info.
-
-  ## What people say
-
-  > **This game is awesome!** - Player 1
-
-  > **I had a good time playing this.** - Player 2
-
-  > **Always looking forward to the next round!**  - Player 3
-
-  ---
-
-  ## Sample Code
-
-  ```
-  // Code block
-  console.log('Hello, world!');
-  ```
-
-  ## Sample Image
-
-  ![Logo](/logo.svg)
-
-connectionsMd: |
-  Scan the QR to join the game.
-
-sharedStateMd: |
-  # Shared State Host
-  This is an example of shared state view. Host can start the game, open the presenter screen and allow players to join by scanning the QR.
-
-  ## Host Actions
-  Here's a demo of dashboard actions that can be used to control the state on presenter and player screens.
-
-sharedStatePlayerMd: |
-  # Shared State Player
-  You are connected as a player. Host has started the game. In this shared state example the playtime is synchronized between all players.
-
-players: 'Players Connected'
-online: 'Online'
-offline: 'Offline'
-startButton: 'Start Game'
-stopButton: 'Stop Game'
-
+# General
+title: 'Feedbacker'
 loading: 'Loading...'
 
+# Host UI
+hostTitle: 'Fair Feedbacker Admin'
+brandingSection: 'Branding'
+logoLabel: 'Logo'
+uploadLogoButton: 'Upload Logo'
+removeLogoButton: 'Remove'
+primaryColorLabel: 'Primary Color (Hex)'
+primaryColorPlaceholder: '#22c55e'
+
+introMessageSection: 'Intro Message'
+introMessageLabel: 'Message shown to players when they join'
+introMessagePlaceholder: 'Welcome to our event! We value your feedback...'
+
+carouselSection: 'Presenter Settings'
+carouselIntervalLabel: 'Carousel Interval (seconds)'
+
+objectsSection: 'Objects to Review'
+addObjectButton: 'Add Object'
+objectNameLabel: 'Name'
+objectNamePlaceholder: 'e.g., Civic'
+objectDescriptionLabel: 'Description'
+objectDescriptionPlaceholder: 'Short description of this item...'
+objectThumbnailLabel: 'Thumbnail Image'
+uploadThumbnailButton: 'Upload Thumbnail'
+deleteObjectButton: 'Delete Object'
+editObjectButton: 'Edit'
+saveObjectButton: 'Save'
+cancelButton: 'Cancel'
+
+questionsSection: 'Questions'
+addQuestionButton: 'Add Question'
+questionTextLabel: 'Question'
+questionTextPlaceholder: 'How would you rate the...?'
+questionImageLabel: 'Question Image (Required)'
+uploadImageButton: 'Upload Image'
+optionsLabel: 'Answer Options'
+addOptionButton: 'Add Option'
+optionPlaceholder: 'Option text...'
+deleteQuestionButton: 'Delete'
+saveQuestionButton: 'Save Question'
+
+publishSection: 'Publish Event'
+validateButton: 'Save Changes'
+publishButton: 'Publish Event'
+unpublishButton: 'Unpublish'
+eventPublished: 'Event is live! Players can now join.'
+eventNotPublished: 'Event is not published yet'
+validationErrors: 'Please fix the following issues:'
+
+statsSection: 'Live Statistics'
+totalResponses: 'Total Responses'
+skipCount: 'Skipped'
+responseDistribution: 'Response Distribution'
+noResponses: 'No responses yet'
+resetResponsesButton: 'Reset All Responses'
+resetConfirmMessage: 'Are you sure you want to reset all responses? This action cannot be undone.'
+
+playerLinkLabel: 'Visitor Link'
+presenterLinkLabel: 'Presenter Link'
+
+# Player UI
+playerIntroTitle: 'Welcome'
+selectObjectLabel: 'Select an item to review:'
+completedLabel: 'Completed'
+startReviewButton: 'Start Review'
+finishButton: 'Finish & Submit'
+skipButton: 'Skip'
+nextButton: 'Next'
+previousButton: 'Previous'
+questionOf: 'of'
+cancelReviewButton: 'Cancel'
+allObjectsCompleted: 'Thank you! You have reviewed all available items.'
+eventNotAvailable: 'This event is not available yet. Please check back later.'
+
+# Presenter UI
+presenterTitle: 'Scan to Join'
+resultsTitle: 'Live Results'
+noQuestionsYet: 'Waiting for questions to be configured...'
+responsesLabel: 'responses'
+
+# Menu
+menuAriaLabel: 'Open menu'
+menuHelpAriaLabel: 'Open help'
 menuHelpMd: |
   # Help
 
-  This is the help section. Here you can find information about how to play the game and get assistance if needed.
+  ## How to Participate
 
-  ## How to Play
+  1. Select an item you want to review
+  2. Answer the questions for that item
+  3. Tap "Finish" when done
+  4. Select another item to review
 
-  1. Join the game using the provided link or QR code.
-  2. Follow the instructions on your screen.
-  3. Interact with other players as required by the game.
+  ## Notes
 
-  ## Getting Assistance
-
-  If you encounter any issues, please contact the host or refer to the FAQ section on our website.
-
-createProfileMd: |
-  # Welcome!
-
-  Please enter your name to join the game.
-
-playerNamePlaceholder: 'Your name...'
-playerNameLabel: 'Name:'
-playerNameButton: 'Continue'
-
-playerLinkLabel: 'Player Link'
-presenterLinkLabel: 'Presenter Link'
-
-togglePresenterQrButton: 'Toggle Presenter QR'
-openPlayerHelpButton: 'Force Players Help to Open'
-
-menuAriaLabel: 'Open menu drawer'
-menuHelpAriaLabel: 'Open help drawer'
+  - You can skip questions if unsure
+  - Each item can only be reviewed once
+  - Your feedback is anonymous

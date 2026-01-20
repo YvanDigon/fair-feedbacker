@@ -1,4 +1,3 @@
-import { Logo } from '@/components/logo';
 import { cn } from '@/utils/cn';
 import * as React from 'react';
 
@@ -10,7 +9,7 @@ interface LayoutProps {
 const HostPresenterRoot: React.FC<LayoutProps> = ({ children, className }) => (
 	<div
 		className={cn(
-			'grid min-h-dvh grid-rows-[auto_1fr_auto] bg-slate-100',
+			'grid min-h-dvh grid-rows-[auto_1fr_auto] bg-gradient-to-b from-white to-green-50',
 			className
 		)}
 	>
@@ -29,7 +28,6 @@ const HostPresenterHeader: React.FC<LayoutProps> = ({
 		)}
 	>
 		<div className="container mx-auto flex items-center justify-between p-4">
-			<Logo />
 			{children}
 		</div>
 	</header>

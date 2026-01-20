@@ -1,19 +1,50 @@
 import { kmClient } from '@/services/km-client';
+import type {
+	Branding,
+	CompletedObjectEntry,
+	FeedbackObject,
+	Question,
+	Response
+} from '@/types/feedbacker';
 
 export interface GlobalState {
 	controllerConnectionId: string;
-	started: boolean;
-	startTimestamp: number;
 	players: Record<string, { name: string }>;
-	showPresenterQr: boolean;
+
+	// Feedbacker event data
+	branding: Branding;
+	introMessage: string;
+	isPublished: boolean;
+	carouselIntervalSeconds: number;
+
+	// Objects and Questions
+	objects: Record<string, FeedbackObject>;
+	questions: Record<string, Question>;
+
+	// Responses (keyed by response ID)
+	responses: Record<string, Response>;
+
+	// Completed objects per session (keyed by `${sessionId}_${objectId}`)
+	completedObjects: Record<string, CompletedObjectEntry>;
 }
 
 const initialState: GlobalState = {
 	controllerConnectionId: '',
-	started: false,
-	startTimestamp: 0,
 	players: {},
-	showPresenterQr: true
+
+	// Feedbacker defaults
+	branding: {
+		logoUrl: null,
+		primaryColor: '#22c55e'
+	},
+	introMessage: '',
+	isPublished: false,
+	carouselIntervalSeconds: 5,
+
+	objects: {},
+	questions: {},
+	responses: {},
+	completedObjects: {}
 };
 
 export const globalStore = kmClient.store<GlobalState>('global', initialState);

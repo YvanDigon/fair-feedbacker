@@ -23,7 +23,7 @@
 	--tw-prose-headings: var(--color-slate-900);
 	--tw-prose-body: var(--color-slate-900);
 	--tw-prose-bold: var(--color-slate-900);
-	--tw-prose-links: var(--color-blue-500);
+	--tw-prose-links: var(--color-green-500);
 	--tw-prose-bullets: var(--color-slate-500);
 	--tw-prose-counters: var(--color-slate-500);
 	--tw-prose-quotes: var(--color-slate-900);
@@ -38,7 +38,7 @@ body {
 }
 
 .km-input {
-	@apply w-full max-w-96 rounded-xl border border-slate-300 bg-slate-50 px-5 py-3 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50;
+	@apply w-full max-w-96 rounded-xl border border-slate-300 bg-slate-50 px-5 py-3 transition-colors focus:ring-2 focus:ring-green-500 focus:outline-none disabled:opacity-50;
 }
 
 .km-btn-primary,
@@ -49,11 +49,11 @@ body {
 }
 
 .km-btn-primary {
-	@apply not-disabled:bg-blue-500 not-disabled:text-white not-disabled:hover:bg-blue-600;
+	@apply not-disabled:bg-slate-700 not-disabled:text-white not-disabled:hover:bg-slate-800;
 }
 
 .km-btn-secondary {
-	@apply not-disabled:bg-blue-100 not-disabled:text-blue-950 not-disabled:hover:bg-blue-200;
+	@apply not-disabled:bg-slate-200 not-disabled:text-slate-900 not-disabled:hover:bg-slate-300;
 }
 
 .km-btn-error {
