@@ -1,10 +1,20 @@
 import * as React from 'react';
 
+interface PrizePagePending {
+	title?: string;
+	imageUrl?: string | null;
+	message?: string;
+}
+
 interface PendingSettings {
 	logoUrl?: string | null;
 	primaryColor?: string;
 	introMessage?: string;
 	carouselIntervalSeconds?: number;
+	// Prize settings
+	prizeEnabled?: boolean;
+	prizeEmailCollection?: PrizePagePending;
+	prizeClaim?: PrizePagePending;
 }
 
 interface SettingsContextValue {

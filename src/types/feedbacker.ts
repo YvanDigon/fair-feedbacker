@@ -50,3 +50,16 @@ export interface ValidationError {
 	field: string;
 	message: string;
 }
+
+export interface PrizePageSettings {
+	title: string;
+	imageUrl: string | null;
+	message: string;
+}
+
+export interface PrizeSubmission {
+	sessionId: string;
+	name: string;
+	email: string;
+	timestamp: number;
+}

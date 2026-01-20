@@ -4,15 +4,16 @@ import { globalStore } from '@/state/stores/global-store';
 import { playerStore } from '@/state/stores/player-store';
 import { cn } from '@/utils/cn';
 import { useSnapshot } from '@kokimoki/app';
-import { CheckCircle, ChevronRight, ImageIcon } from 'lucide-react';
+import { CheckCircle, ChevronRight, Gift, ImageIcon } from 'lucide-react';
 import * as React from 'react';
 import Markdown from 'react-markdown';
 
 export const PlayerIntroView: React.FC = () => {
-	const { branding, introMessage, objects, isPublished } = useSnapshot(
-		globalStore.proxy
+	const { branding, introMessage, objects, isPublished, prizeEnabled } =
+		useSnapshot(globalStore.proxy);
+	const { completedObjectIds, hasSubmittedPrizeEmail } = useSnapshot(
+		playerStore.proxy
 	);
-	const { completedObjectIds } = useSnapshot(playerStore.proxy);
 
 	const sortedObjects = Object.values(objects).sort(
 		(a, b) => a.createdAt - b.createdAt
@@ -29,9 +30,16 @@ export const PlayerIntroView: React.FC = () => {
 		isObjectCompleted(obj.id)
 	);
 
+	// Show claim prize button if: prize enabled + user submitted email
+	const showClaimPrizeButton = prizeEnabled && hasSubmittedPrizeEmail;
+
 	const handleSelectObject = async (objectId: string) => {
 		if (isObjectCompleted(objectId)) return;
 		await playerActions.selectObject(objectId);
+	};
+
+	const handleClaimPrize = async () => {
+		await playerActions.openPrizeClaim();
 	};
 
 	// Event not published
@@ -47,6 +55,18 @@ export const PlayerIntroView: React.FC = () => {
 	if (availableObjects.length === 0 && completedObjectsList.length > 0) {
 		return (
 			<div className="w-full space-y-8 text-center">
+				{/* Claim Prize Button */}
+				{showClaimPrizeButton && (
+					<button
+						type="button"
+						onClick={handleClaimPrize}
+						className="mx-auto flex items-center gap-3 rounded-xl px-6 py-4 text-lg font-semibold text-white shadow-lg transition-transform hover:scale-105"
+						style={{ backgroundColor: branding.primaryColor }}
+					>
+						<Gift className="size-6" />
+						{config.prizeClaimButton}
+					</button>
+				)}
 				<div className="mx-auto flex size-20 items-center justify-center rounded-full bg-green-100">
 					<CheckCircle className="size-10 text-green-600" />
 				</div>
@@ -57,6 +77,19 @@ export const PlayerIntroView: React.FC = () => {
 
 	return (
 		<div className="w-full space-y-8">
+			{/* Claim Prize Button */}
+			{showClaimPrizeButton && (
+				<button
+					type="button"
+					onClick={handleClaimPrize}
+					className="flex w-full items-center justify-center gap-3 rounded-xl px-6 py-4 text-lg font-semibold text-white shadow-lg transition-transform hover:scale-105"
+					style={{ backgroundColor: branding.primaryColor }}
+				>
+					<Gift className="size-6" />
+					{config.prizeClaimButton}
+				</button>
+			)}
+
 			{/* Branding */}
 			<div className="text-center">
 				{branding.logoUrl && (

@@ -1,5 +1,5 @@
 import { kmClient } from '@/services/km-client';
-import type { FeedbackObject, Question, ValidationError } from '@/types/feedbacker';
+import type { FeedbackObject, PrizePageSettings, Question, ValidationError } from '@/types/feedbacker';
 import { globalStore } from '../stores/global-store';
 
 export const globalActions = {
@@ -202,6 +202,52 @@ export const globalActions = {
 		await kmClient.transact([globalStore], ([globalState]) => {
 			globalState.responses = {};
 			globalState.completedObjects = {};
+		});
+	},
+
+	// Prize feature actions
+	async togglePrizeFeature(enabled: boolean) {
+		await kmClient.transact([globalStore], ([globalState]) => {
+			globalState.prizeEnabled = enabled;
+		});
+	},
+
+	async updatePrizeEmailCollection(settings: Partial<PrizePageSettings>) {
+		await kmClient.transact([globalStore], ([globalState]) => {
+			if (settings.title !== undefined)
+				globalState.prizeEmailCollection.title = settings.title;
+			if (settings.imageUrl !== undefined)
+				globalState.prizeEmailCollection.imageUrl = settings.imageUrl;
+			if (settings.message !== undefined)
+				globalState.prizeEmailCollection.message = settings.message;
+		});
+	},
+
+	async updatePrizeClaim(settings: Partial<PrizePageSettings>) {
+		await kmClient.transact([globalStore], ([globalState]) => {
+			if (settings.title !== undefined)
+				globalState.prizeClaim.title = settings.title;
+			if (settings.imageUrl !== undefined)
+				globalState.prizeClaim.imageUrl = settings.imageUrl;
+			if (settings.message !== undefined)
+				globalState.prizeClaim.message = settings.message;
+		});
+	},
+
+	async submitPrizeEmail(sessionId: string, name: string, email: string) {
+		await kmClient.transact([globalStore], ([globalState]) => {
+			globalState.prizeSubmissions[sessionId] = {
+				sessionId,
+				name,
+				email,
+				timestamp: kmClient.serverTimestamp()
+			};
+		});
+	},
+
+	async clearPrizeSubmissions() {
+		await kmClient.transact([globalStore], ([globalState]) => {
+			globalState.prizeSubmissions = {};
 		});
 	}
 };

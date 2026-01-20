@@ -41,6 +41,23 @@ export const PublishControl: React.FC = () => {
 				);
 			}
 
+			// Save prize enabled
+			if (pending.prizeEnabled !== undefined) {
+				await globalActions.togglePrizeFeature(pending.prizeEnabled);
+			}
+
+			// Save prize email collection settings
+			if (pending.prizeEmailCollection !== undefined) {
+				await globalActions.updatePrizeEmailCollection(
+					pending.prizeEmailCollection
+				);
+			}
+
+			// Save prize claim settings
+			if (pending.prizeClaim !== undefined) {
+				await globalActions.updatePrizeClaim(pending.prizeClaim);
+			}
+
 			clearPending();
 			setErrors([]);
 		} finally {

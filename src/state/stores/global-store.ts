@@ -3,6 +3,8 @@ import type {
 	Branding,
 	CompletedObjectEntry,
 	FeedbackObject,
+	PrizePageSettings,
+	PrizeSubmission,
 	Question,
 	Response
 } from '@/types/feedbacker';
@@ -26,6 +28,12 @@ export interface GlobalState {
 
 	// Completed objects per session (keyed by `${sessionId}_${objectId}`)
 	completedObjects: Record<string, CompletedObjectEntry>;
+
+	// Prize feature
+	prizeEnabled: boolean;
+	prizeEmailCollection: PrizePageSettings;
+	prizeClaim: PrizePageSettings;
+	prizeSubmissions: Record<string, PrizeSubmission>; // keyed by sessionId
 }
 
 const initialState: GlobalState = {
@@ -44,7 +52,21 @@ const initialState: GlobalState = {
 	objects: {},
 	questions: {},
 	responses: {},
-	completedObjects: {}
+	completedObjects: {},
+
+	// Prize feature defaults
+	prizeEnabled: false,
+	prizeEmailCollection: {
+		title: '',
+		imageUrl: null,
+		message: ''
+	},
+	prizeClaim: {
+		title: '',
+		imageUrl: null,
+		message: ''
+	},
+	prizeSubmissions: {}
 };
 
 export const globalStore = kmClient.store<GlobalState>('global', initialState);

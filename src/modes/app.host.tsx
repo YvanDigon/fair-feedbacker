@@ -2,6 +2,7 @@ import { BrandingEditor } from '@/components/host/branding-editor';
 import { CarouselSettings } from '@/components/host/carousel-settings';
 import { IntroMessageEditor } from '@/components/host/intro-message-editor';
 import { ObjectsEditor } from '@/components/host/objects-editor';
+import { PrizeSettings } from '@/components/host/prize-settings';
 import { PublishControl } from '@/components/host/publish-control';
 import { SettingsProvider } from '@/components/host/settings-context';
 import { StatsDashboard } from '@/components/host/stats-dashboard';
@@ -44,6 +45,7 @@ const App: React.FC = () => {
 								<BrandingEditor />
 								<IntroMessageEditor />
 								<CarouselSettings />
+								<PrizeSettings />
 								<PublishControl />
 							</div>
 							<div className="space-y-6">

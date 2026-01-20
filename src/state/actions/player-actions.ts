@@ -31,6 +31,18 @@ function saveCompletedObjects(objectIds: string[]): void {
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(objectIds));
 }
 
+// Load prize email submission status from localStorage
+function loadHasSubmittedPrizeEmail(): boolean {
+	const STORAGE_KEY = 'feedbacker_prize_email_submitted';
+	return localStorage.getItem(STORAGE_KEY) === 'true';
+}
+
+// Save prize email submission status to localStorage
+function saveHasSubmittedPrizeEmail(submitted: boolean): void {
+	const STORAGE_KEY = 'feedbacker_prize_email_submitted';
+	localStorage.setItem(STORAGE_KEY, submitted ? 'true' : 'false');
+}
+
 export const playerActions = {
 	async setCurrentView(view: PlayerState['currentView']) {
 		await kmClient.transact([playerStore], ([playerState]) => {
@@ -51,9 +63,11 @@ export const playerActions = {
 	async initSession() {
 		const sessionId = getOrCreateSessionId();
 		const completedObjectIds = loadCompletedObjects();
+		const hasSubmittedPrizeEmail = loadHasSubmittedPrizeEmail();
 		await kmClient.transact([playerStore], ([playerState]) => {
 			playerState.sessionId = sessionId;
 			playerState.completedObjectIds = completedObjectIds;
+			playerState.hasSubmittedPrizeEmail = hasSubmittedPrizeEmail;
 		});
 		return sessionId;
 	},
@@ -74,22 +88,32 @@ export const playerActions = {
 
 	async finishObject() {
 		const state = playerStore.proxy;
+		const globalState = globalStore.proxy;
 		const sessionId = state.sessionId;
 		const objectId = state.selectedObjectId;
 		const answers = { ...state.currentAnswers };
+		const prizeEnabled = globalState.prizeEnabled;
+		const hasSubmittedPrizeEmail = state.hasSubmittedPrizeEmail;
 
 		if (!sessionId || !objectId) return;
 
 		// Submit responses to global store (for statistics)
 		await globalActions.submitResponses(sessionId, objectId, answers);
 
-		// Mark object as completed locally and return to intro view
+		// Determine next view
+		// Show email collection if: prize enabled + hasn't submitted email yet
+		const shouldShowEmailCollection =
+			prizeEnabled && !hasSubmittedPrizeEmail;
+
+		// Mark object as completed locally
 		await kmClient.transact([playerStore], ([playerState]) => {
 			if (!playerState.completedObjectIds.includes(objectId)) {
 				playerState.completedObjectIds.push(objectId);
 			}
 			playerState.selectedObjectId = null;
-			playerState.currentView = 'intro';
+			playerState.currentView = shouldShowEmailCollection
+				? 'email-collection'
+				: 'intro';
 			playerState.currentAnswers = {};
 		});
 
@@ -107,5 +131,40 @@ export const playerActions = {
 
 	isObjectCompleted(objectId: string): boolean {
 		return playerStore.proxy.completedObjectIds.includes(objectId);
+	},
+
+	async submitPrizeEmail(name: string, email: string) {
+		const sessionId = playerStore.proxy.sessionId;
+		if (!sessionId) return;
+
+		// Submit to global store
+		await globalActions.submitPrizeEmail(sessionId, name, email);
+
+		// Mark as submitted locally
+		await kmClient.transact([playerStore], ([playerState]) => {
+			playerState.hasSubmittedPrizeEmail = true;
+			playerState.currentView = 'intro';
+		});
+
+		// Persist to localStorage
+		saveHasSubmittedPrizeEmail(true);
+	},
+
+	async skipPrizeEmail() {
+		await kmClient.transact([playerStore], ([playerState]) => {
+			playerState.currentView = 'intro';
+		});
+	},
+
+	async openPrizeClaim() {
+		await kmClient.transact([playerStore], ([playerState]) => {
+			playerState.currentView = 'prize-claim';
+		});
+	},
+
+	async closePrizeClaim() {
+		await kmClient.transact([playerStore], ([playerState]) => {
+			playerState.currentView = 'intro';
+		});
 	}
 };

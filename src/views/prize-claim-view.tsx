@@ -1,0 +1,60 @@
+import { config } from '@/config';
+import { playerActions } from '@/state/actions/player-actions';
+import { globalStore } from '@/state/stores/global-store';
+import { useSnapshot } from '@kokimoki/app';
+import { ArrowLeft, ImageIcon } from 'lucide-react';
+import * as React from 'react';
+import Markdown from 'react-markdown';
+
+export const PrizeClaimView: React.FC = () => {
+	const { prizeClaim, branding } = useSnapshot(globalStore.proxy);
+
+	const handleBack = async () => {
+		await playerActions.closePrizeClaim();
+	};
+
+	const displayTitle = prizeClaim.title || config.prizeClaimTitlePlaceholder;
+	const displayMessage = prizeClaim.message || '';
+
+	return (
+		<div className="flex w-full max-w-md flex-col items-center gap-6">
+			{/* Back button */}
+			<button
+				type="button"
+				onClick={handleBack}
+				className="flex items-center gap-2 self-start text-slate-600 hover:text-slate-800"
+			>
+				<ArrowLeft className="size-5" />
+				{config.prizeClaimBackButton}
+			</button>
+
+			{/* Image */}
+			{prizeClaim.imageUrl ? (
+				<img
+					src={prizeClaim.imageUrl}
+					alt="Prize"
+					className="h-64 w-64 rounded-xl object-contain shadow-md"
+				/>
+			) : (
+				<div className="flex h-64 w-64 items-center justify-center rounded-xl bg-slate-100">
+					<ImageIcon className="size-20 text-slate-300" />
+				</div>
+			)}
+
+			{/* Title */}
+			<h1
+				className="text-center text-3xl font-bold"
+				style={{ color: branding.primaryColor }}
+			>
+				{displayTitle}
+			</h1>
+
+			{/* Message */}
+			{displayMessage && (
+				<div className="prose prose-slate w-full max-w-none text-center">
+					<Markdown>{displayMessage}</Markdown>
+				</div>
+			)}
+		</div>
+	);
+};
