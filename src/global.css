@@ -18,23 +18,58 @@
 		'Courier New', monospace;
 }
 
+/* Theme CSS variables with defaults */
+:root {
+	/* Default theme values (light mode) */
+	--theme-primary: #22c55e;
+	--theme-secondary: #16a34a;
+	--theme-accent: #86efac;
+	--theme-background: #f0fdf4;
+	--theme-gradient: #dcfce7;
+	--theme-text: #0f172a;
+
+	/* Derived theme colors - computed surfaces */
+	--theme-surface: #ffffff;
+	--theme-surface-hover: #f8fafc;
+	--theme-surface-secondary: #f1f5f9;
+	--theme-surface-tertiary: #e2e8f0;
+	--theme-border: #cbd5e1;
+	--theme-border-light: #e2e8f0;
+	--theme-text-muted: #64748b;
+	--theme-text-secondary: #475569;
+}
+
+/* Dark mode detection - when background is dark, adjust surfaces */
+html.dark-theme {
+	--theme-surface: #1e293b;
+	--theme-surface-hover: #334155;
+	--theme-surface-secondary: #334155;
+	--theme-surface-tertiary: #475569;
+	--theme-border: #475569;
+	--theme-border-light: #334155;
+	--theme-text-muted: #94a3b8;
+	--theme-text-secondary: #cbd5e1;
+}
+
 /* Markdown styling with Tailwind Typography (prose) */
 .prose {
-	--tw-prose-headings: var(--color-slate-900);
-	--tw-prose-body: var(--color-slate-900);
-	--tw-prose-bold: var(--color-slate-900);
-	--tw-prose-links: var(--color-green-500);
-	--tw-prose-bullets: var(--color-slate-500);
-	--tw-prose-counters: var(--color-slate-500);
-	--tw-prose-quotes: var(--color-slate-900);
-	--tw-prose-pre-bg: var(--color-slate-900);
-	--tw-prose-pre-code: var(--color-slate-100);
-	--tw-prose-hr: var(--color-slate-300);
+	--tw-prose-headings: var(--theme-text);
+	--tw-prose-body: var(--theme-text);
+	--tw-prose-bold: var(--theme-text);
+	--tw-prose-links: var(--theme-primary);
+	--tw-prose-bullets: var(--theme-text-muted);
+	--tw-prose-counters: var(--theme-text-muted);
+	--tw-prose-quotes: var(--theme-text);
+	--tw-prose-pre-bg: var(--theme-surface-secondary);
+	--tw-prose-pre-code: var(--theme-text);
+	--tw-prose-hr: var(--theme-border);
 }
 
 html,
 body {
-	@apply overscroll-none text-slate-900;
+	@apply overscroll-none;
+	color: var(--theme-text);
+	background-color: var(--theme-background);
 }
 
 .km-input {
@@ -62,4 +97,73 @@ body {
 
 .km-btn-neutral {
 	@apply not-disabled:bg-slate-600 not-disabled:text-white not-disabled:hover:bg-slate-700;
+}
+
+/* Theme-aware utility classes */
+.theme-text {
+	color: var(--theme-text);
+}
+
+.theme-text-muted {
+	color: var(--theme-text-muted);
+}
+
+.theme-text-secondary {
+	color: var(--theme-text-secondary);
+}
+
+.theme-bg {
+	background-color: var(--theme-background);
+}
+
+.theme-bg-surface {
+	background-color: var(--theme-surface);
+}
+
+.theme-bg-surface-hover:hover {
+	background-color: var(--theme-surface-hover);
+}
+
+.theme-bg-surface-secondary {
+	background-color: var(--theme-surface-secondary);
+}
+
+.theme-bg-surface-tertiary {
+	background-color: var(--theme-surface-tertiary);
+}
+
+.theme-border {
+	border-color: var(--theme-border);
+}
+
+.theme-border-light {
+	border-color: var(--theme-border-light);
+}
+
+/* Theme-aware input styling */
+.km-input-themed {
+	@apply w-full max-w-96 rounded-xl border px-5 py-3 transition-colors focus:ring-2 focus:ring-green-500 focus:outline-none disabled:opacity-50;
+	background-color: var(--theme-surface);
+	border-color: var(--theme-border);
+	color: var(--theme-text);
+}
+
+.km-input-themed::placeholder {
+	color: var(--theme-text-muted);
+}
+
+/* Theme-aware card/panel styling */
+.theme-card {
+	background-color: var(--theme-surface);
+	border-color: var(--theme-border-light);
+}
+
+.theme-card-interactive {
+	background-color: var(--theme-surface);
+	border-color: var(--theme-border-light);
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-card-interactive:hover {
+	background-color: var(--theme-surface-hover);
 }

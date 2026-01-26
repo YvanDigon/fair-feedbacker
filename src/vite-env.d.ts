@@ -1,1 +1,23 @@
 /// <reference types="vite/client" />
+
+declare module 'wordcloud' {
+	interface WordCloudOptions {
+		list: [string, number][];
+		gridSize?: number;
+		weightFactor?: number;
+		fontFamily?: string;
+		color?: string | (() => string);
+		rotateRatio?: number;
+		backgroundColor?: string;
+		minSize?: number;
+		drawOutOfBound?: boolean;
+		shrinkToFit?: boolean;
+	}
+
+	function WordCloud(
+		canvas: HTMLCanvasElement,
+		options: WordCloudOptions
+	): void;
+
+	export default WordCloud;
+}

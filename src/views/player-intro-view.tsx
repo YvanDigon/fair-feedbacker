@@ -46,7 +46,7 @@ export const PlayerIntroView: React.FC = () => {
 	if (!isPublished) {
 		return (
 			<div className="w-full text-center">
-				<p className="text-lg text-slate-600">{config.eventNotAvailable}</p>
+				<p className="text-lg theme-text-secondary">{config.eventNotAvailable}</p>
 			</div>
 		);
 	}
@@ -70,7 +70,7 @@ export const PlayerIntroView: React.FC = () => {
 				<div className="mx-auto flex size-20 items-center justify-center rounded-full bg-green-100">
 					<CheckCircle className="size-10 text-green-600" />
 				</div>
-				<p className="text-lg text-slate-600">{config.allObjectsCompleted}</p>
+				<p className="text-lg theme-text-secondary">{config.allObjectsCompleted}</p>
 			</div>
 		);
 	}
@@ -109,14 +109,14 @@ export const PlayerIntroView: React.FC = () => {
 
 			{/* Intro message */}
 			{introMessage && (
-				<article className="prose prose-slate mx-auto text-center">
+				<article className="prose mx-auto text-center">
 					<Markdown>{introMessage}</Markdown>
 				</article>
 			)}
 
 			{/* Object selection */}
 			<div className="space-y-3">
-				<p className="text-sm font-medium text-slate-600">
+				<p className="text-sm font-medium theme-text-secondary">
 					{config.selectObjectLabel}
 				</p>
 
@@ -127,7 +127,7 @@ export const PlayerIntroView: React.FC = () => {
 							key={obj.id}
 							type="button"
 							onClick={() => handleSelectObject(obj.id)}
-							className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left transition-colors hover:border-blue-300 hover:bg-blue-50"
+								className="flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors theme-card-interactive"
 							style={{
 								borderColor: 'transparent',
 								boxShadow: `0 0 0 2px ${branding.primaryColor}20`
@@ -140,14 +140,14 @@ export const PlayerIntroView: React.FC = () => {
 									className="size-12 shrink-0 rounded-lg object-cover"
 								/>
 							) : (
-								<div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-slate-100">
-									<ImageIcon className="size-6 text-slate-400" />
+								<div className="flex size-12 shrink-0 items-center justify-center rounded-lg theme-bg-surface-secondary">
+									<ImageIcon className="size-6 theme-text-muted" />
 								</div>
 							)}
 							<div className="flex-1">
 								<h3 className="font-semibold">{obj.name}</h3>
 								{obj.description && (
-									<p className="text-sm text-slate-500">{obj.description}</p>
+									<p className="text-sm theme-text-muted">{obj.description}</p>
 								)}
 							</div>
 							<ChevronRight
@@ -162,7 +162,7 @@ export const PlayerIntroView: React.FC = () => {
 						<div
 							key={obj.id}
 							className={cn(
-								'flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-100 p-4 opacity-60'
+								'flex w-full items-center gap-3 rounded-xl border p-4 opacity-60 theme-bg-surface-secondary theme-border-light'
 							)}
 						>
 							{obj.thumbnailUrl ? (
@@ -172,14 +172,14 @@ export const PlayerIntroView: React.FC = () => {
 									className="size-12 shrink-0 rounded-lg object-cover grayscale"
 								/>
 							) : (
-								<div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-slate-200">
-									<ImageIcon className="size-6 text-slate-400" />
+								<div className="flex size-12 shrink-0 items-center justify-center rounded-lg theme-bg-surface-tertiary">
+									<ImageIcon className="size-6 theme-text-muted" />
 								</div>
 							)}
 							<div className="flex-1">
 								<h3 className="font-semibold">{obj.name}</h3>
 								{obj.description && (
-									<p className="text-sm text-slate-500">{obj.description}</p>
+									<p className="text-sm theme-text-muted">{obj.description}</p>
 								)}
 							</div>
 							<span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">

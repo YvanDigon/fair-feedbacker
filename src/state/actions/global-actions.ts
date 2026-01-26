@@ -1,5 +1,6 @@
 import { kmClient } from '@/services/km-client';
-import type { FeedbackObject, PrizePageSettings, Question, ValidationError } from '@/types/feedbacker';
+import type { AITheme, FeedbackObject, PrizePageSettings, Question, QuestionType, ValidationError } from '@/types/feedbacker';
+import type { Answer } from '../stores/player-store';
 import { globalStore } from '../stores/global-store';
 
 export const globalActions = {
@@ -9,6 +10,86 @@ export const globalActions = {
 			globalState.branding.logoUrl = logoUrl;
 			globalState.branding.primaryColor = primaryColor;
 		});
+	},
+
+	async applyTheme(theme: {
+		primaryColor: string;
+		secondaryColor: string;
+		accentColor: string;
+		backgroundColor: string;
+		gradientColor: string;
+		textColor: string;
+	}) {
+		await kmClient.transact([globalStore], ([globalState]) => {
+			globalState.branding.primaryColor = theme.primaryColor;
+			globalState.branding.secondaryColor = theme.secondaryColor;
+			globalState.branding.accentColor = theme.accentColor;
+			globalState.branding.backgroundColor = theme.backgroundColor;
+			globalState.branding.gradientColor = theme.gradientColor;
+			globalState.branding.textColor = theme.textColor;
+		});
+	},
+
+	async generateAIThemes(logoUrl: string, primaryColor: string) {
+		const state = globalStore.proxy;
+		
+		// Check generation limit
+		if (state.branding.generationCount >= 3) {
+			throw new Error('Maximum theme generations reached (3/3)');
+		}
+
+		// Use AI to generate 3 theme variations based on logo and primary color
+		const prompt = `Analyze the brand logo and primary color ${primaryColor} to generate 3 different color themes in JSON format:
+		
+1. Monochromatic theme (LIGHT MODE): Variations of the primary color with different shades and tints. This is a LIGHT theme.
+2. Complementary theme (LIGHT MODE): Colors opposite on the color wheel for high contrast. This is a LIGHT theme.
+3. Dark Mode theme (DARK MODE): A dark theme where backgrounds are dark colors and text is light. This is a DARK theme.
+
+CRITICAL REQUIREMENTS:
+- For Monochromatic and Complementary (LIGHT MODES):
+  * backgroundColor must be VERY LIGHT (like #f0fdf4, #fef3f2, #f0f9ff)
+  * gradientColor must be SLIGHTLY LIGHTER than backgroundColor (like #dcfce7, #fee2e2, #dbeafe)
+  * textColor MUST be DARK for readability (like #0f172a, #1e293b, #020617)
+
+- For Dark Mode (DARK MODE ONLY):
+  * backgroundColor must be DARK (like #0f172a, #1e293b, #171717)
+  * gradientColor must be a SLIGHTLY DIFFERENT DARK shade (like #1e293b, #334155, #262626)
+  * textColor MUST be LIGHT for readability (like #f8fafc, #f1f5f9, #fafafa)
+
+For each theme, provide:
+- name: "Monochromatic" or "Complementary" or "Dark Mode"
+- primaryColor (hex)
+- secondaryColor (hex)
+- accentColor (hex)
+- backgroundColor (hex - LIGHT for first two, DARK for Dark Mode)
+- gradientColor (hex - LIGHT for first two, DARK for Dark Mode)
+- textColor (hex - DARK like #0f172a for first two, LIGHT like #f8fafc for Dark Mode)
+
+Return JSON array with 3 themes: [{"name": "Monochromatic", "primaryColor": "#...", "secondaryColor": "#...", "accentColor": "#...", "backgroundColor": "#...", "gradientColor": "#...", "textColor": "#..."}, ...]`;
+
+		try {
+			const result = await kmClient.ai.generateJson<AITheme[]>({
+				userPrompt: prompt,
+				imageUrls: [logoUrl],
+				temperature: 0.8
+			});
+
+			const themes: AITheme[] = result.map((theme, index) => ({
+				...theme,
+				id: `${Date.now()}_${index}`
+			}));
+
+			// Save generated themes
+			await kmClient.transact([globalStore], ([globalState]) => {
+				globalState.branding.generatedThemes = themes;
+				globalState.branding.generationCount += 1;
+			});
+
+			return themes;
+		} catch (error) {
+			console.error('Failed to generate themes:', error);
+			throw new Error('Failed to generate AI themes. Please try again.');
+		}
 	},
 
 	async updateIntroMessage(message: string) {
@@ -69,15 +150,28 @@ export const globalActions = {
 	},
 
 	// Question actions
-	async addQuestion(objectId: string, text: string, imageUrl: string, options: string[]) {
+	async addQuestion(
+		objectId: string,
+		type: QuestionType,
+		text: string,
+		imageUrl: string,
+		options: string[] = [],
+		randomizeOptions?: boolean,
+		openEndedLength?: 'short' | 'long',
+		ratingScale?: 5 | 7 | 10 | 11
+	) {
 		const id = kmClient.serverTimestamp().toString();
 		await kmClient.transact([globalStore], ([globalState]) => {
 			globalState.questions[id] = {
 				id,
 				objectId,
+				type,
 				text,
 				imageUrl,
 				options,
+				randomizeOptions,
+				openEndedLength,
+				ratingScale,
 				createdAt: kmClient.serverTimestamp()
 			};
 		});
@@ -88,9 +182,13 @@ export const globalActions = {
 		await kmClient.transact([globalStore], ([globalState]) => {
 			const q = globalState.questions[questionId];
 			if (q) {
+				if (updates.type !== undefined) q.type = updates.type;
 				if (updates.text !== undefined) q.text = updates.text;
 				if (updates.imageUrl !== undefined) q.imageUrl = updates.imageUrl;
 				if (updates.options !== undefined) q.options = updates.options;
+				if (updates.randomizeOptions !== undefined) q.randomizeOptions = updates.randomizeOptions;
+				if (updates.openEndedLength !== undefined) q.openEndedLength = updates.openEndedLength;
+				if (updates.ratingScale !== undefined) q.ratingScale = updates.ratingScale;
 			}
 		});
 	},
@@ -138,8 +236,11 @@ export const globalActions = {
 			}
 
 			objQuestions.forEach((q) => {
-				if (q.options.length < 2) {
-					errors.push({ field: `question_${q.id}`, message: `Question "${q.text}" must have at least 2 options` });
+				// Validate based on question type
+				if (q.type === 'single' || q.type === 'multiple') {
+					if (q.options.length < 2) {
+						errors.push({ field: `question_${q.id}`, message: `Question "${q.text}" must have at least 2 options` });
+					}
 				}
 				if (!q.imageUrl) {
 					errors.push({ field: `question_${q.id}_image`, message: `Question "${q.text}" must have an image` });
@@ -171,20 +272,45 @@ export const globalActions = {
 	async submitResponses(
 		sessionId: string,
 		objectId: string,
-		answers: Record<string, number | null>
+		answers: Record<string, Answer>
 	) {
 		await kmClient.transact([globalStore], ([globalState]) => {
 			// Save each answer as a response
-			Object.entries(answers).forEach(([questionId, selectedOptionIndex]) => {
+			Object.entries(answers).forEach(([questionId, answer]) => {
 				const responseId = `${sessionId}_${questionId}`;
-				globalState.responses[responseId] = {
+				const baseResponse = {
 					id: responseId,
 					sessionId,
 					questionId,
 					objectId,
-					selectedOptionIndex,
 					timestamp: kmClient.serverTimestamp()
 				};
+
+				// Map answer based on type
+				if (answer.type === 'single') {
+					globalState.responses[responseId] = {
+						...baseResponse,
+						selectedOptionIndex: answer.value
+					};
+				} else if (answer.type === 'multiple') {
+					globalState.responses[responseId] = {
+						...baseResponse,
+						selectedOptionIndex: null,
+						selectedOptionIndexes: answer.value
+					};
+				} else if (answer.type === 'open-ended') {
+					globalState.responses[responseId] = {
+						...baseResponse,
+						selectedOptionIndex: null,
+						textAnswer: answer.value
+					};
+				} else if (answer.type === 'rating') {
+					globalState.responses[responseId] = {
+						...baseResponse,
+						selectedOptionIndex: null,
+						ratingValue: answer.value !== null ? answer.value : undefined
+					};
+				}
 			});
 
 			// Mark object as completed for this session
@@ -235,19 +361,27 @@ export const globalActions = {
 	},
 
 	async submitPrizeEmail(sessionId: string, name: string, email: string) {
+		// Store name and email in leaderboard privateMetadata (GDPR compliant - not exposed to clients)
+		// Using upsertEntry ensures one submission per session
+		await kmClient.leaderboard.upsertEntry(
+			'prize-submissions',
+			'desc',
+			kmClient.serverTimestamp(), // score = timestamp for ordering
+			{}, // public metadata (empty - nothing exposed)
+			{ sessionId, name, email } // privateMetadata (only accessible via API)
+		);
+
+		// Increment local counter (just for display purposes)
 		await kmClient.transact([globalStore], ([globalState]) => {
-			globalState.prizeSubmissions[sessionId] = {
-				sessionId,
-				name,
-				email,
-				timestamp: kmClient.serverTimestamp()
-			};
+			globalState.prizeSubmissionCount += 1;
 		});
 	},
 
 	async clearPrizeSubmissions() {
+		// Reset the counter (leaderboard entries persist but counter resets)
+		// Note: Actual leaderboard entries can only be managed via Kokimoki API
 		await kmClient.transact([globalStore], ([globalState]) => {
-			globalState.prizeSubmissions = {};
+			globalState.prizeSubmissionCount = 0;
 		});
 	}
 };

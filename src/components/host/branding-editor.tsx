@@ -1,9 +1,10 @@
 import { config } from '@/config';
 import { kmClient } from '@/services/km-client';
+import { globalActions } from '@/state/actions/global-actions';
 import { globalStore } from '@/state/stores/global-store';
 import { cn } from '@/utils/cn';
 import { useSnapshot } from '@kokimoki/app';
-import { ImagePlus, X } from 'lucide-react';
+import { ImagePlus, Sparkles, X } from 'lucide-react';
 import * as React from 'react';
 import { useSettingsContext } from './settings-context';
 
@@ -12,6 +13,7 @@ export const BrandingEditor: React.FC = () => {
 	const { pending, setPending } = useSettingsContext();
 	const [colorInput, setColorInput] = React.useState(branding.primaryColor);
 	const [isUploading, setIsUploading] = React.useState(false);
+	const [isGenerating, setIsGenerating] = React.useState(false);
 	const fileInputRef = React.useRef<HTMLInputElement>(null);
 
 	// Get current values (pending or saved)
@@ -72,7 +74,40 @@ export const BrandingEditor: React.FC = () => {
 		}
 	};
 
+	const handleGenerateThemes = async () => {
+		if (!currentLogoUrl || !isValidColor) return;
+		if (branding.generationCount >= 3) return;
+
+		setIsGenerating(true);
+		try {
+			await globalActions.generateAIThemes(currentLogoUrl, currentPrimaryColor);
+		} catch (error) {
+			console.error('Failed to generate themes:', error);
+			alert(error instanceof Error ? error.message : 'Failed to generate themes');
+		} finally {
+			setIsGenerating(false);
+		}
+	};
+
+	const handleApplyTheme = async (theme: {
+		primaryColor: string;
+		secondaryColor: string;
+		accentColor: string;
+		backgroundColor: string;
+		gradientColor: string;
+		textColor: string;
+	}) => {
+		await globalActions.applyTheme(theme);
+		setColorInput(theme.primaryColor);
+		// Clear only color-related pending changes, preserve logo
+		setPending((prev) => {
+			const { primaryColor: _, ...rest } = prev;
+			return rest;
+		});
+	};
+
 	const isValidColor = /^#[0-9A-Fa-f]{6}$/.test(colorInput);
+	const canGenerate = !!currentLogoUrl && isValidColor && branding.generationCount < 3;
 
 	return (
 		<div className="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
@@ -149,6 +184,141 @@ export const BrandingEditor: React.FC = () => {
 						}}
 					/>
 				</div>
+			</div>
+
+			{/* AI Theme Generator */}
+			<div className="space-y-3 border-t border-slate-200 pt-4">
+				<div className="flex items-center justify-between">
+					<label className="text-sm font-medium text-slate-700">
+						AI Theme Generator
+					</label>
+					{branding.generationCount > 0 && (
+						<span className="text-xs text-slate-500">
+							{branding.generationCount}/3 generations
+						</span>
+					)}
+				</div>
+				<button
+					type="button"
+					onClick={handleGenerateThemes}
+					disabled={!canGenerate || isGenerating}
+					className={cn(
+						'km-btn-secondary w-full',
+						isGenerating && 'opacity-75'
+					)}
+				>
+					<Sparkles className="size-5" />
+					{isGenerating
+						? config.generatingTheme
+						: branding.generationCount >= 3
+							? config.maxGenerationsReached
+							: config.generateThemeButton}
+				</button>
+
+				{/* Theme Options */}
+				{branding.generatedThemes.length > 0 && (
+					<div className="grid gap-2">
+						{/* Default Theme */}
+						<button
+							type="button"
+							onClick={() =>
+								handleApplyTheme({
+									primaryColor: config.defaultPrimaryColor,
+									secondaryColor: config.defaultSecondaryColor,
+									accentColor: config.defaultAccentColor,
+									backgroundColor: config.defaultBackgroundColor,
+								gradientColor: config.defaultGradientColor,
+								textColor: config.defaultTextColor
+								})
+							}
+							className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 text-left transition-colors hover:bg-slate-50"
+						>
+							<div className="flex flex-1 items-center gap-2">
+								<span className="text-sm font-medium">
+									{config.defaultThemeLabel}
+								</span>
+								{branding.primaryColor === config.defaultPrimaryColor &&
+								branding.secondaryColor === config.defaultSecondaryColor &&
+								branding.accentColor === config.defaultAccentColor &&
+								branding.backgroundColor === config.defaultBackgroundColor &&
+								branding.gradientColor === config.defaultGradientColor &&
+								branding.textColor === config.defaultTextColor && (
+										<span className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
+											{config.currentThemeLabel}
+										</span>
+									)}
+							</div>
+							<div className="flex gap-1">
+								<div
+									className="size-6 rounded border border-slate-300"
+									style={{ backgroundColor: config.defaultPrimaryColor }}
+								/>
+								<div
+									className="size-6 rounded border border-slate-300"
+									style={{ backgroundColor: config.defaultSecondaryColor }}
+								/>
+								<div
+									className="size-6 rounded border border-slate-300"
+									style={{ backgroundColor: config.defaultAccentColor }}
+								/>
+								<div
+									className="size-6 rounded border border-slate-300"
+									style={{ backgroundColor: config.defaultBackgroundColor }}
+								/>
+								<div
+									className="size-6 rounded border border-slate-300"
+									style={{ backgroundColor: config.defaultGradientColor }}
+								/>
+							</div>
+						</button>
+
+						{/* AI Generated Themes */}
+						{branding.generatedThemes.map((theme) => (
+							<button
+								key={theme.id}
+								type="button"
+								onClick={() => handleApplyTheme(theme)}
+								className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 text-left transition-colors hover:bg-slate-50"
+							>
+								<div className="flex flex-1 items-center gap-2">
+									<span className="text-sm font-medium">{theme.name}</span>
+									{branding.primaryColor === theme.primaryColor &&
+									branding.secondaryColor === theme.secondaryColor &&
+									branding.accentColor === theme.accentColor &&
+									branding.backgroundColor === theme.backgroundColor &&
+									branding.gradientColor === theme.gradientColor &&
+									branding.textColor === theme.textColor && (
+											<span className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
+												{config.currentThemeLabel}
+											</span>
+										)}
+								</div>
+								<div className="flex gap-1">
+									<div
+										className="size-6 rounded border border-slate-300"
+										style={{ backgroundColor: theme.primaryColor }}
+									/>
+									<div
+										className="size-6 rounded border border-slate-300"
+										style={{ backgroundColor: theme.secondaryColor }}
+									/>
+									<div
+										className="size-6 rounded border border-slate-300"
+										style={{ backgroundColor: theme.accentColor }}
+									/>
+									<div
+										className="size-6 rounded border border-slate-300"
+										style={{ backgroundColor: theme.backgroundColor }}
+									/>
+									<div
+										className="size-6 rounded border border-slate-300"
+										style={{ backgroundColor: theme.gradientColor }}
+									/>
+								</div>
+							</button>
+						))}
+					</div>
+				)}
 			</div>
 		</div>
 	);

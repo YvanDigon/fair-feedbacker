@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-01-26
+
+### Added
+- AI Theme Generator: Automatically generate 3 color themes (Monochromatic, Complementary, Dark Mode) based on logo and primary color
+- Theme preview cards with visual representation of each generated theme
+- Theme application system with one-click "Apply" buttons
+- Generation limit tracking (maximum 3 theme generations per event)
+- Theme generation count indicator in UI
+- Dynamic theme detection: CSS automatically adjusts surface colors, borders, and text colors for light/dark themes
+- Configuration fields for AI theme generator UI (8+ new config options)
+
+### Changed
+- Enhanced branding editor with collapsible AI theme generator section
+- Improved theme system with CSS variables for automatic light/dark mode adaptation
+- Theme colors now properly cascade to all derived UI elements (surfaces, borders, text)
+
 ## [0.1.1] - 2026-01-20
 
 ### Added
@@ -37,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial Feedbacker implementation with Host, Player, and Presenter modes
 - Real-time feedback collection system for fair/exhibition events
 - Object and question management with image support
+- Multiple question types: Single Answer, Multiple Answers, Open Ended, and Rating Scale
 - Response tracking and statistics dashboard
 - Live results carousel on presenter screen
 - Settings context with pending changes pattern

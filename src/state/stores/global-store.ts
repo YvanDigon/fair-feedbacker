@@ -4,7 +4,6 @@ import type {
 	CompletedObjectEntry,
 	FeedbackObject,
 	PrizePageSettings,
-	PrizeSubmission,
 	Question,
 	Response
 } from '@/types/feedbacker';
@@ -33,7 +32,7 @@ export interface GlobalState {
 	prizeEnabled: boolean;
 	prizeEmailCollection: PrizePageSettings;
 	prizeClaim: PrizePageSettings;
-	prizeSubmissions: Record<string, PrizeSubmission>; // keyed by sessionId
+	prizeSubmissionCount: number; // Counter only - emails stored securely in leaderboard privateMetadata
 }
 
 const initialState: GlobalState = {
@@ -43,7 +42,14 @@ const initialState: GlobalState = {
 	// Feedbacker defaults
 	branding: {
 		logoUrl: null,
-		primaryColor: '#22c55e'
+		primaryColor: '#22c55e',
+		secondaryColor: '#16a34a',
+		accentColor: '#86efac',
+		backgroundColor: '#f0fdf4',
+		gradientColor: '#dcfce7',
+		textColor: '#0f172a',
+		generatedThemes: [],
+		generationCount: 0
 	},
 	introMessage: '',
 	isPublished: false,
@@ -66,7 +72,7 @@ const initialState: GlobalState = {
 		imageUrl: null,
 		message: ''
 	},
-	prizeSubmissions: {}
+	prizeSubmissionCount: 0
 };
 
 export const globalStore = kmClient.store<GlobalState>('global', initialState);

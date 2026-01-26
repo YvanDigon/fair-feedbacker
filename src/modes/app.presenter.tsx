@@ -1,4 +1,5 @@
 import { config } from '@/config';
+import { ThemeProvider } from '@/components/theme-provider';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useGlobalController } from '@/hooks/useGlobalController';
 import { generateLink } from '@/kit/generate-link';
@@ -26,18 +27,20 @@ const App: React.FC = () => {
 	});
 
 	return (
-		<HostPresenterLayout.Root>
-			<HostPresenterLayout.Header>
+		<ThemeProvider>
+			<HostPresenterLayout.Root>
+			<HostPresenterLayout.Main className="relative min-h-screen p-0">
+				{/* Logo positioned at top left */}
 				{branding.logoUrl && (
-					<img
-						src={branding.logoUrl}
-						alt="Event logo"
-						className="h-10 w-auto"
-					/>
+					<div className="absolute left-4 top-4 z-10">
+						<img
+							src={branding.logoUrl}
+							alt="Event logo"
+							className="h-10 w-auto"
+						/>
+					</div>
 				)}
-			</HostPresenterLayout.Header>
 
-			<HostPresenterLayout.Main className="h-full p-0">
 				{isPublished ? (
 					<div className="flex h-full w-full">
 						{/* Carousel */}
@@ -60,8 +63,8 @@ const App: React.FC = () => {
 						</div>
 					</div>
 				) : (
-					<div className="flex h-full flex-col items-center justify-center gap-8">
-						<h2 className="text-2xl font-semibold text-slate-600">
+					<div className="absolute inset-0 flex flex-col items-center justify-center gap-8 px-8">
+						<h2 className="text-center text-2xl font-semibold theme-text-secondary">
 							{config.eventNotAvailable}
 						</h2>
 						<div className="opacity-50">
@@ -71,6 +74,7 @@ const App: React.FC = () => {
 				)}
 			</HostPresenterLayout.Main>
 		</HostPresenterLayout.Root>
+		</ThemeProvider>
 	);
 };
 

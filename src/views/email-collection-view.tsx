@@ -52,8 +52,8 @@ export const EmailCollectionView: React.FC = () => {
 					className="h-48 w-full rounded-xl object-cover shadow-md"
 				/>
 			) : (
-				<div className="flex h-48 w-full items-center justify-center rounded-xl bg-slate-100">
-					<ImageIcon className="size-16 text-slate-300" />
+				<div className="flex h-48 w-full items-center justify-center rounded-xl theme-bg-surface-secondary">
+					<ImageIcon className="size-16 theme-text-muted" />
 				</div>
 			)}
 
@@ -66,12 +66,12 @@ export const EmailCollectionView: React.FC = () => {
 			</h1>
 
 			{/* Message */}
-			<p className="text-center text-slate-600">{displayMessage}</p>
+			<p className="text-center theme-text-secondary">{displayMessage}</p>
 
 			{/* Form */}
 			<form onSubmit={handleSubmit} className="w-full space-y-4">
 				<div className="space-y-2">
-					<label className="text-sm font-medium text-slate-700">
+					<label className="text-sm font-medium theme-text-secondary">
 						{config.prizeEmailNameLabel}
 					</label>
 					<input
@@ -80,12 +80,12 @@ export const EmailCollectionView: React.FC = () => {
 						onChange={(e) => setName(e.target.value)}
 						placeholder={config.prizeEmailNamePlaceholder}
 						required
-						className="km-input"
+						className="km-input-themed"
 					/>
 				</div>
 
 				<div className="space-y-2">
-					<label className="text-sm font-medium text-slate-700">
+					<label className="text-sm font-medium theme-text-secondary">
 						{config.prizeEmailAddressLabel}
 					</label>
 					<input
@@ -97,7 +97,7 @@ export const EmailCollectionView: React.FC = () => {
 						}}
 						placeholder={config.prizeEmailAddressPlaceholder}
 						required
-						className={cn('km-input', emailError && 'border-red-500')}
+						className={cn('km-input-themed', emailError && 'border-red-500')}
 					/>
 					{emailError && (
 						<p className="text-sm text-red-500">{emailError}</p>
@@ -117,7 +117,8 @@ export const EmailCollectionView: React.FC = () => {
 			<button
 				type="button"
 				onClick={handleSkip}
-				className="text-slate-500 underline hover:text-slate-700"
+				className="underline opacity-70 hover:opacity-100"
+				style={{ color: 'var(--theme-text-muted)' }}
 			>
 				{config.prizeEmailSkipLink}
 			</button>

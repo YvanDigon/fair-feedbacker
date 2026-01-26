@@ -13,6 +13,25 @@ removeLogoButton: 'Remove'
 primaryColorLabel: 'Primary Color (Hex)'
 primaryColorPlaceholder: '#22c55e'
 
+# Theme defaults
+defaultPrimaryColor: '#22c55e'
+defaultSecondaryColor: '#16a34a'
+defaultAccentColor: '#86efac'
+defaultBackgroundColor: '#f0fdf4'
+defaultGradientColor: '#dcfce7'
+defaultTextColor: '#0f172a'
+
+# AI Theme Generator
+generateThemeButton: 'Generate AI Themes'
+generatingTheme: 'Generating themes...'
+maxGenerationsReached: 'Maximum generations reached (3/3)'
+defaultThemeLabel: 'Default'
+monochromaticThemeLabel: 'Monochromatic'
+complementaryThemeLabel: 'Complementary'
+darkModeThemeLabel: 'Dark Mode'
+applyThemeButton: 'Apply'
+currentThemeLabel: 'Current'
+
 introMessageSection: 'Intro Message'
 introMessageLabel: 'Message shown to players when they join'
 introMessagePlaceholder: 'Welcome to our event! We value your feedback...'
@@ -35,13 +54,27 @@ cancelButton: 'Cancel'
 
 questionsSection: 'Questions'
 addQuestionButton: 'Add Question'
+questionTypeLabel: 'Question Type'
+questionTypeSingle: 'Single Answer'
+questionTypeMultiple: 'Multiple Answers'
+questionTypeOpenEnded: 'Open Ended'
+questionTypeRating: 'Rating Scale'
 questionTextLabel: 'Question'
 questionTextPlaceholder: 'How would you rate the...?'
 questionImageLabel: 'Question Image (Required)'
 uploadImageButton: 'Upload Image'
 optionsLabel: 'Answer Options'
+randomizeOptionsLabel: 'Randomize option order'
 addOptionButton: 'Add Option'
 optionPlaceholder: 'Option text...'
+openEndedLengthLabel: 'Answer Length'
+openEndedShort: 'Short (1-2 words)'
+openEndedLong: 'Long (paragraph)'
+ratingScaleLabel: 'Rating Scale'
+ratingScale5: '5 stars'
+ratingScale7: '7 stars'
+ratingScale10: '10 stars'
+ratingScale11: '11 stars'
 deleteQuestionButton: 'Delete'
 saveQuestionButton: 'Save Question'
 
@@ -82,7 +115,9 @@ eventNotAvailable: 'This event is not available yet. Please check back later.'
 presenterTitle: 'Scan to Join'
 resultsTitle: 'Live Results'
 noQuestionsYet: 'Waiting for questions to be configured...'
+noQuestionsAvailable: 'No questions available'
 responsesLabel: 'responses'
+averageRating: 'Average Rating'
 
 # Prize Feature - Host UI
 prizeSection: 'Prize Feature'
@@ -100,9 +135,24 @@ prizeClaimMessageLabel: 'Instructions'
 prizeClaimMessagePlaceholder: 'Show this screen to claim your prize...'
 prizeClaimImageLabel: 'Claim Image'
 prizeSubmissionsSection: 'Email Submissions'
+prizeSubmissionsCount: 'participants registered'
 prizeSubmissionsEmpty: 'No submissions yet'
-prizeSubmissionsClearButton: 'Clear All'
-prizeSubmissionsClearConfirm: 'Are you sure you want to clear all email submissions?'
+prizeSubmissionsClearButton: 'Reset Counter'
+prizeSubmissionsClearConfirm: 'Are you sure you want to reset the submissions counter?'
+prizeSubmissionsInfoButton: 'How to retrieve emails'
+prizeSubmissionsInfoTitle: 'Retrieving Prize Submissions'
+prizeSubmissionsInfoMd: |
+  Emails are stored securely and cannot be displayed here for GDPR compliance.
+
+  To retrieve email submissions, use the Kokimoki API:
+
+  ```
+  GET /v1/apps/{appId}/leaderboard/prize-submissions/entries
+  ```
+
+  Include your API key in the header and add `?includePrivateMetadata=true` to get the email data.
+
+  Contact your Kokimoki administrator for API access.
 
 # Prize Feature - Player UI
 prizeEmailFormTitle: 'Win a Prize!'

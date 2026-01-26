@@ -93,9 +93,13 @@ interface ObjectItemProps {
 	};
 	questions: Array<{
 		id: string;
+		type: 'single' | 'multiple' | 'open-ended' | 'rating';
 		text: string;
 		imageUrl: string;
 		options: string[];
+		randomizeOptions?: boolean;
+		openEndedLength?: 'short' | 'long';
+		ratingScale?: 5 | 7 | 10 | 11;
 	}>;
 	isExpanded: boolean;
 	onToggle: () => void;
@@ -274,9 +278,13 @@ interface QuestionsEditorProps {
 	objectId: string;
 	questions: Array<{
 		id: string;
+		type: string;
 		text: string;
 		imageUrl: string;
 		options: string[];
+		randomizeOptions?: boolean;
+		openEndedLength?: 'short' | 'long';
+		ratingScale?: 5 | 7 | 10 | 11;
 	}>;
 }
 
@@ -285,33 +293,47 @@ const QuestionsEditor: React.FC<QuestionsEditorProps> = ({
 	questions
 }) => {
 	const [isAddingQuestion, setIsAddingQuestion] = React.useState(false);
+	const [newQuestionType, setNewQuestionType] = React.useState<'single' | 'multiple' | 'open-ended' | 'rating'>('single');
 	const [newQuestionText, setNewQuestionText] = React.useState('');
 	const [newQuestionImage, setNewQuestionImage] = React.useState('');
 	const [newQuestionOptions, setNewQuestionOptions] = React.useState<string[]>([
 		'',
 		''
 	]);
+	const [randomizeOptions, setRandomizeOptions] = React.useState(false);
+	const [openEndedLength, setOpenEndedLength] = React.useState<'short' | 'long'>('short');
+	const [ratingScale, setRatingScale] = React.useState<5 | 7 | 10 | 11>(5);
 	const [isUploading, setIsUploading] = React.useState(false);
 	const imageInputRef = React.useRef<HTMLInputElement>(null);
 
 	const handleAddQuestion = async () => {
-		if (
-			!newQuestionText.trim() ||
-			!newQuestionImage ||
-			newQuestionOptions.filter((o) => o.trim()).length < 2
-		)
+		if (!newQuestionText.trim() || !newQuestionImage) return;
+		
+		// Validate based on question type
+		if ((newQuestionType === 'single' || newQuestionType === 'multiple') && 
+			newQuestionOptions.filter((o) => o.trim()).length < 2) {
 			return;
+		}
 
 		await globalActions.addQuestion(
 			objectId,
+			newQuestionType,
 			newQuestionText.trim(),
 			newQuestionImage,
-			newQuestionOptions.filter((o) => o.trim())
+			newQuestionOptions.filter((o) => o.trim()),
+			randomizeOptions,
+			openEndedLength,
+			ratingScale
 		);
 
+		// Reset form
+		setNewQuestionType('single');
 		setNewQuestionText('');
 		setNewQuestionImage('');
 		setNewQuestionOptions(['', '']);
+		setRandomizeOptions(false);
+		setOpenEndedLength('short');
+		setRatingScale(5);
 		setIsAddingQuestion(false);
 	};
 
@@ -359,6 +381,24 @@ const QuestionsEditor: React.FC<QuestionsEditorProps> = ({
 			{/* Add new question */}
 			{isAddingQuestion ? (
 				<div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
+					{/* Question Type Selector */}
+					<div className="space-y-2">
+						<label className="text-sm font-medium text-slate-700">
+							{config.questionTypeLabel}
+						</label>
+						<select
+							value={newQuestionType}
+							onChange={(e) => setNewQuestionType(e.target.value as 'single' | 'multiple' | 'open-ended' | 'rating')}
+							className="km-input"
+						>
+							<option value="single">{config.questionTypeSingle}</option>
+							<option value="multiple">{config.questionTypeMultiple}</option>
+							<option value="open-ended">{config.questionTypeOpenEnded}</option>
+							<option value="rating">{config.questionTypeRating}</option>
+						</select>
+					</div>
+
+					{/* Question Text */}
 					<input
 						type="text"
 						value={newQuestionText}
@@ -410,40 +450,92 @@ const QuestionsEditor: React.FC<QuestionsEditorProps> = ({
 						)}
 					</div>
 
-					{/* Options */}
-					<div className="space-y-2">
-						<label className="text-sm font-medium text-slate-700">
-							{config.optionsLabel}
-						</label>
-						{newQuestionOptions.map((option, index) => (
-							<div key={index} className="flex gap-2">
-								<input
-									type="text"
-									value={option}
-									onChange={(e) => handleOptionChange(index, e.target.value)}
-									placeholder={`${config.optionPlaceholder} ${index + 1}`}
-									className="km-input flex-1"
-								/>
-								{newQuestionOptions.length > 2 && (
+					{/* Type-specific fields */}
+					{(newQuestionType === 'single' || newQuestionType === 'multiple') && (
+						<>
+							{/* Options */}
+							<div className="space-y-2">
+								<label className="text-sm font-medium text-slate-700">
+									{config.optionsLabel}
+								</label>
+								{newQuestionOptions.map((option, index) => (
+									<div key={index} className="flex gap-2">
+										<input
+											type="text"
+											value={option}
+											onChange={(e) => handleOptionChange(index, e.target.value)}
+											placeholder={`${config.optionPlaceholder} ${index + 1}`}
+											className="km-input flex-1"
+										/>
+										{newQuestionOptions.length > 2 && (
+											<button
+												type="button"
+												onClick={() => handleRemoveOption(index)}
+												className="rounded-lg p-2 text-red-500 hover:bg-red-100"
+											>
+												<X className="size-4" />
+											</button>
+										)}
+									</div>
+								))}
+								{newQuestionOptions.length < 7 && (
 									<button
 										type="button"
-										onClick={() => handleRemoveOption(index)}
-										className="rounded-lg p-2 text-red-500 hover:bg-red-100"
+										onClick={handleAddOption}
+										className="km-btn-secondary text-sm"
 									>
-										<X className="size-4" />
+										<Plus className="size-4" />
+										{config.addOptionButton}
 									</button>
 								)}
 							</div>
-						))}
-						<button
-							type="button"
-							onClick={handleAddOption}
-							className="km-btn-secondary text-sm"
-						>
-							<Plus className="size-4" />
-							{config.addOptionButton}
-						</button>
-					</div>
+
+							{/* Randomize toggle */}
+							<label className="flex items-center gap-2">
+								<input
+									type="checkbox"
+									checked={randomizeOptions}
+									onChange={(e) => setRandomizeOptions(e.target.checked)}
+									className="size-4 rounded accent-blue-500"
+								/>
+								<span className="text-sm">{config.randomizeOptionsLabel}</span>
+							</label>
+						</>
+					)}
+
+					{newQuestionType === 'open-ended' && (
+						<div className="space-y-2">
+							<label className="text-sm font-medium text-slate-700">
+								{config.openEndedLengthLabel}
+							</label>
+							<select
+								value={openEndedLength}
+								onChange={(e) => setOpenEndedLength(e.target.value as 'short' | 'long')}
+								className="km-input"
+							>
+								<option value="short">{config.openEndedShort}</option>
+								<option value="long">{config.openEndedLong}</option>
+							</select>
+						</div>
+					)}
+
+					{newQuestionType === 'rating' && (
+						<div className="space-y-2">
+							<label className="text-sm font-medium text-slate-700">
+								{config.ratingScaleLabel}
+							</label>
+							<select
+								value={ratingScale}
+								onChange={(e) => setRatingScale(Number(e.target.value) as 5 | 7 | 10 | 11)}
+								className="km-input"
+							>
+								<option value={5}>{config.ratingScale5}</option>
+								<option value={7}>{config.ratingScale7}</option>
+								<option value={10}>{config.ratingScale10}</option>
+								<option value={11}>{config.ratingScale11}</option>
+							</select>
+						</div>
+					)}
 
 					<div className="flex gap-2">
 						<button
@@ -452,7 +544,8 @@ const QuestionsEditor: React.FC<QuestionsEditorProps> = ({
 							disabled={
 								!newQuestionText.trim() ||
 								!newQuestionImage ||
-								newQuestionOptions.filter((o) => o.trim()).length < 2
+								((newQuestionType === 'single' || newQuestionType === 'multiple') && 
+									newQuestionOptions.filter((o) => o.trim()).length < 2)
 							}
 							className="km-btn-primary"
 						>
@@ -484,9 +577,13 @@ const QuestionsEditor: React.FC<QuestionsEditorProps> = ({
 interface QuestionItemProps {
 	question: {
 		id: string;
+		type: string;
 		text: string;
 		imageUrl: string;
 		options: string[];
+		randomizeOptions?: boolean;
+		openEndedLength?: 'short' | 'long';
+		ratingScale?: 5 | 7 | 10 | 11;
 	};
 	index: number;
 }
@@ -498,13 +595,28 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, index }) => {
 		}
 	};
 
+	const getTypeLabel = () => {
+		switch (question.type) {
+			case 'single': return config.questionTypeSingle;
+			case 'multiple': return config.questionTypeMultiple;
+			case 'open-ended': return config.questionTypeOpenEnded;
+			case 'rating': return config.questionTypeRating;
+			default: return 'Unknown';
+		}
+	};
+
 	return (
 		<div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3">
 			<span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-medium">
 				{index + 1}
 			</span>
 			<div className="flex-1 space-y-2">
-				<p className="font-medium">{question.text}</p>
+				<div className="flex items-center gap-2">
+					<p className="font-medium">{question.text}</p>
+					<span className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">
+						{getTypeLabel()}
+					</span>
+				</div>
 				{question.imageUrl && (
 					<img
 						src={question.imageUrl}
@@ -512,16 +624,34 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, index }) => {
 						className="h-16 w-auto rounded-lg object-cover"
 					/>
 				)}
-				<div className="flex flex-wrap gap-1">
-					{question.options.map((opt, i) => (
-						<span
-							key={i}
-							className="rounded-full bg-slate-100 px-2 py-0.5 text-xs"
-						>
-							{opt}
-						</span>
-					))}
-				</div>
+				{/* Show type-specific details */}
+				{(question.type === 'single' || question.type === 'multiple') && (
+					<div className="flex flex-wrap gap-1">
+						{question.options.map((opt, i) => (
+							<span
+								key={i}
+								className="rounded-full bg-slate-100 px-2 py-0.5 text-xs"
+							>
+								{opt}
+							</span>
+						))}
+						{question.randomizeOptions && (
+							<span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+								Randomized
+							</span>
+						)}
+					</div>
+				)}
+				{question.type === 'open-ended' && (
+					<span className="text-xs text-slate-500">
+						{question.openEndedLength === 'short' ? config.openEndedShort : config.openEndedLong}
+					</span>
+				)}
+				{question.type === 'rating' && (
+					<span className="text-xs text-slate-500">
+						{question.ratingScale} stars
+					</span>
+				)}
 			</div>
 			<button
 				type="button"

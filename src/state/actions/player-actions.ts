@@ -1,11 +1,12 @@
-import { kmClient } from '@/services/km-client';
+import { kmClient, kmEnv } from '@/services/km-client';
 import { globalActions } from './global-actions';
 import { globalStore } from '../stores/global-store';
 import { playerStore, type PlayerState } from '../stores/player-store';
 
-// Generate or get session ID from localStorage
+// Generate or get session ID from localStorage (scoped to app instance)
 function getOrCreateSessionId(): string {
-	const STORAGE_KEY = 'feedbacker_session_id';
+	const appId = kmEnv.appId;
+	const STORAGE_KEY = `feedbacker_${appId}_session_id`;
 	let sessionId = localStorage.getItem(STORAGE_KEY);
 	if (!sessionId) {
 		sessionId = `${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
@@ -14,9 +15,10 @@ function getOrCreateSessionId(): string {
 	return sessionId;
 }
 
-// Load completed objects from localStorage
+// Load completed objects from localStorage (scoped to app instance)
 function loadCompletedObjects(): string[] {
-	const STORAGE_KEY = 'feedbacker_completed_objects';
+	const appId = kmEnv.appId;
+	const STORAGE_KEY = `feedbacker_${appId}_completed_objects`;
 	try {
 		const stored = localStorage.getItem(STORAGE_KEY);
 		return stored ? JSON.parse(stored) : [];
@@ -25,21 +27,24 @@ function loadCompletedObjects(): string[] {
 	}
 }
 
-// Save completed objects to localStorage
+// Save completed objects to localStorage (scoped to app instance)
 function saveCompletedObjects(objectIds: string[]): void {
-	const STORAGE_KEY = 'feedbacker_completed_objects';
+	const appId = kmEnv.appId;
+	const STORAGE_KEY = `feedbacker_${appId}_completed_objects`;
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(objectIds));
 }
 
-// Load prize email submission status from localStorage
+// Load prize email submission status from localStorage (scoped to app instance)
 function loadHasSubmittedPrizeEmail(): boolean {
-	const STORAGE_KEY = 'feedbacker_prize_email_submitted';
+	const appId = kmEnv.appId;
+	const STORAGE_KEY = `feedbacker_${appId}_prize_email_submitted`;
 	return localStorage.getItem(STORAGE_KEY) === 'true';
 }
 
-// Save prize email submission status to localStorage
+// Save prize email submission status to localStorage (scoped to app instance)
 function saveHasSubmittedPrizeEmail(submitted: boolean): void {
-	const STORAGE_KEY = 'feedbacker_prize_email_submitted';
+	const appId = kmEnv.appId;
+	const STORAGE_KEY = `feedbacker_${appId}_prize_email_submitted`;
 	localStorage.setItem(STORAGE_KEY, submitted ? 'true' : 'false');
 }
 
@@ -80,9 +85,27 @@ export const playerActions = {
 		});
 	},
 
-	async setAnswer(questionId: string, optionIndex: number | null) {
+	async setSingleAnswer(questionId: string, optionIndex: number | null) {
 		await kmClient.transact([playerStore], ([playerState]) => {
-			playerState.currentAnswers[questionId] = optionIndex;
+			playerState.currentAnswers[questionId] = { type: 'single', value: optionIndex };
+		});
+	},
+
+	async setMultipleAnswers(questionId: string, optionIndexes: number[]) {
+		await kmClient.transact([playerStore], ([playerState]) => {
+			playerState.currentAnswers[questionId] = { type: 'multiple', value: optionIndexes };
+		});
+	},
+
+	async setOpenEndedAnswer(questionId: string, text: string) {
+		await kmClient.transact([playerStore], ([playerState]) => {
+			playerState.currentAnswers[questionId] = { type: 'open-ended', value: text };
+		});
+	},
+
+	async setRatingAnswer(questionId: string, rating: number | null) {
+		await kmClient.transact([playerStore], ([playerState]) => {
+			playerState.currentAnswers[questionId] = { type: 'rating', value: rating };
 		});
 	},
 

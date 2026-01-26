@@ -10,7 +10,6 @@ import { config } from '@/config';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useGlobalController } from '@/hooks/useGlobalController';
 import { generateLink } from '@/kit/generate-link';
-import { HostPresenterLayout } from '@/layouts/host-presenter';
 import { kmClient } from '@/services/km-client';
 import { SquareArrowOutUpRight } from 'lucide-react';
 import * as React from 'react';
@@ -34,11 +33,17 @@ const App: React.FC = () => {
 
 	return (
 		<SettingsProvider>
-			<HostPresenterLayout.Root>
-				<HostPresenterLayout.Header />
-				<HostPresenterLayout.Main className="items-start py-8">
+			{/* Host uses fixed admin styling, not themed */}
+			<div className="grid min-h-dvh grid-rows-[auto_1fr_auto] bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900">
+				{/* Header */}
+				<header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 shadow-xs backdrop-blur-xs">
+					<div className="container mx-auto flex items-center justify-between p-4" />
+				</header>
+
+				{/* Main */}
+				<main className="container mx-auto flex items-start px-4 py-8">
 					<div className="w-full max-w-4xl space-y-6">
-						<h1 className="text-2xl font-bold">{config.hostTitle}</h1>
+						<h1 className="text-2xl font-bold text-slate-900">{config.hostTitle}</h1>
 
 						<div className="grid gap-6 lg:grid-cols-2">
 							<div className="space-y-6">
@@ -55,32 +60,35 @@ const App: React.FC = () => {
 
 						<StatsDashboard />
 					</div>
-				</HostPresenterLayout.Main>
+				</main>
 
-				<HostPresenterLayout.Footer>
-					<div className="inline-flex flex-wrap gap-4">
-						<a
-							href={playerLink}
-							target="_blank"
-							rel="noreferrer"
-							className="km-btn-secondary"
-						>
-							{config.playerLinkLabel}
-							<SquareArrowOutUpRight className="size-5" />
-						</a>
+				{/* Footer */}
+				<footer className="sticky bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur-xs">
+					<div className="container mx-auto flex items-center justify-between p-4">
+						<div className="inline-flex flex-wrap gap-4">
+							<a
+								href={playerLink}
+								target="_blank"
+								rel="noreferrer"
+								className="km-btn-secondary"
+							>
+								{config.playerLinkLabel}
+								<SquareArrowOutUpRight className="size-5" />
+							</a>
 
-						<a
-							href={presenterLink}
-							target="_blank"
-							rel="noreferrer"
-							className="km-btn-secondary"
-						>
-							{config.presenterLinkLabel}
-							<SquareArrowOutUpRight className="size-5" />
-						</a>
+							<a
+								href={presenterLink}
+								target="_blank"
+								rel="noreferrer"
+								className="km-btn-secondary"
+							>
+								{config.presenterLinkLabel}
+								<SquareArrowOutUpRight className="size-5" />
+							</a>
+						</div>
 					</div>
-				</HostPresenterLayout.Footer>
-			</HostPresenterLayout.Root>
+				</footer>
+			</div>
 		</SettingsProvider>
 	);
 };

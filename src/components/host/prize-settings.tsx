@@ -4,8 +4,9 @@ import { globalActions } from '@/state/actions/global-actions';
 import { globalStore } from '@/state/stores/global-store';
 import { cn } from '@/utils/cn';
 import { useSnapshot } from '@kokimoki/app';
-import { ImagePlus, Mail, Trash2, X } from 'lucide-react';
+import { HelpCircle, ImagePlus, Trash2, Users, X } from 'lucide-react';
 import * as React from 'react';
+import Markdown from 'react-markdown';
 import { useSettingsContext } from './settings-context';
 
 export const PrizeSettings: React.FC = () => {
@@ -13,7 +14,7 @@ export const PrizeSettings: React.FC = () => {
 		prizeEnabled,
 		prizeEmailCollection,
 		prizeClaim,
-		prizeSubmissions
+		prizeSubmissionCount
 	} = useSnapshot(globalStore.proxy);
 
 	const { pending, setPending } = useSettingsContext();
@@ -22,6 +23,7 @@ export const PrizeSettings: React.FC = () => {
 		React.useState(false);
 	const [isUploadingClaimImage, setIsUploadingClaimImage] =
 		React.useState(false);
+	const [showInfoModal, setShowInfoModal] = React.useState(false);
 	const emailImageInputRef = React.useRef<HTMLInputElement>(null);
 	const claimImageInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -135,11 +137,6 @@ export const PrizeSettings: React.FC = () => {
 	const handleRemoveClaimImage = async () => {
 		await globalActions.updatePrizeClaim({ imageUrl: null });
 	};
-
-	// Submissions
-	const submissions = Object.values(prizeSubmissions).sort(
-		(a, b) => b.timestamp - a.timestamp
-	);
 
 	const handleClearSubmissions = async () => {
 		if (confirm(config.prizeSubmissionsClearConfirm)) {
@@ -331,10 +328,20 @@ export const PrizeSettings: React.FC = () => {
 					{/* Email Submissions */}
 					<div className="space-y-3 border-t border-slate-200 pt-4">
 						<div className="flex items-center justify-between">
-							<h3 className="font-medium text-slate-700">
-								{config.prizeSubmissionsSection}
-							</h3>
-							{submissions.length > 0 && (
+							<div className="flex items-center gap-2">
+								<h3 className="font-medium text-slate-700">
+									{config.prizeSubmissionsSection}
+								</h3>
+								<button
+									type="button"
+									onClick={() => setShowInfoModal(true)}
+									className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-700"
+									title={config.prizeSubmissionsInfoButton}
+								>
+									<HelpCircle className="size-4" />
+								</button>
+							</div>
+							{prizeSubmissionCount > 0 && (
 								<button
 									type="button"
 									onClick={handleClearSubmissions}
@@ -346,29 +353,42 @@ export const PrizeSettings: React.FC = () => {
 							)}
 						</div>
 
-						{submissions.length === 0 ? (
+						{prizeSubmissionCount === 0 ? (
 							<p className="text-sm text-slate-500">
 								{config.prizeSubmissionsEmpty}
 							</p>
 						) : (
-							<div className="max-h-64 space-y-2 overflow-y-auto">
-								{submissions.map((sub) => (
-									<div
-										key={sub.sessionId}
-										className="flex items-center gap-3 rounded-lg bg-slate-50 p-3"
-									>
-										<Mail className="size-4 shrink-0 text-slate-400" />
-										<div className="flex-1 text-sm">
-											<p className="font-medium text-slate-700">{sub.name}</p>
-											<p className="text-slate-500">{sub.email}</p>
-										</div>
-										<span className="text-xs text-slate-400">
-											{new Date(sub.timestamp).toLocaleTimeString()}
-										</span>
-									</div>
-								))}
+							<div className="flex items-center gap-3 rounded-lg bg-slate-50 p-4">
+								<Users className="size-5 text-green-600" />
+								<span className="text-lg font-semibold text-slate-700">
+									{prizeSubmissionCount}
+								</span>
+								<span className="text-sm text-slate-500">
+									{config.prizeSubmissionsCount}
+								</span>
 							</div>
 						)}
+					</div>
+				</div>
+			)}
+
+			{/* Info Modal */}
+			{showInfoModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+					<div className="relative mx-4 max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6">
+						<button
+							type="button"
+							onClick={() => setShowInfoModal(false)}
+							className="absolute top-4 right-4 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+						>
+							<X className="size-5" />
+						</button>
+						<h3 className="mb-4 text-lg font-semibold text-slate-900">
+							{config.prizeSubmissionsInfoTitle}
+						</h3>
+						<div className="prose prose-sm max-w-none text-slate-600">
+							<Markdown>{config.prizeSubmissionsInfoMd}</Markdown>
+						</div>
 					</div>
 				</div>
 			)}

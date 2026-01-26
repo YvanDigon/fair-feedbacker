@@ -4,10 +4,11 @@ import {
 	KmModalProvider
 } from '@kokimoki/shared';
 import type { ComponentType } from 'react';
+import { ThemeProvider } from './theme-provider';
 
 /**
  * HOC that wraps a component with all Kokimoki shared providers.
- * Providers included: KmAudioProvider, KmConfettiProvider, KmModalProvider
+ * Providers included: KmAudioProvider, KmConfettiProvider, KmModalProvider, ThemeProvider
  *
  * This example is **optional** and can be removed if not needed
  *
@@ -17,13 +18,15 @@ import type { ComponentType } from 'react';
 export function withKmProviders<P extends object>(Component: ComponentType<P>) {
 	return function WithKmProviders(props: P) {
 		return (
-			<KmAudioProvider>
-				<KmConfettiProvider>
-					<KmModalProvider>
-						<Component {...props} />
-					</KmModalProvider>
-				</KmConfettiProvider>
-			</KmAudioProvider>
+			<ThemeProvider>
+				<KmAudioProvider>
+					<KmConfettiProvider>
+						<KmModalProvider>
+							<Component {...props} />
+						</KmModalProvider>
+					</KmConfettiProvider>
+				</KmAudioProvider>
+			</ThemeProvider>
 		);
 	};
 }

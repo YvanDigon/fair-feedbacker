@@ -22,7 +22,8 @@ export const PrizeClaimView: React.FC = () => {
 			<button
 				type="button"
 				onClick={handleBack}
-				className="flex items-center gap-2 self-start text-slate-600 hover:text-slate-800"
+				className="flex items-center gap-2 self-start opacity-70 hover:opacity-100"
+				style={{ color: 'var(--theme-text-secondary)' }}
 			>
 				<ArrowLeft className="size-5" />
 				{config.prizeClaimBackButton}
@@ -36,8 +37,8 @@ export const PrizeClaimView: React.FC = () => {
 					className="h-64 w-64 rounded-xl object-contain shadow-md"
 				/>
 			) : (
-				<div className="flex h-64 w-64 items-center justify-center rounded-xl bg-slate-100">
-					<ImageIcon className="size-20 text-slate-300" />
+				<div className="flex h-64 w-64 items-center justify-center rounded-xl theme-bg-surface-secondary">
+					<ImageIcon className="size-20 theme-text-muted" />
 				</div>
 			)}
 
@@ -51,7 +52,7 @@ export const PrizeClaimView: React.FC = () => {
 
 			{/* Message */}
 			{displayMessage && (
-				<div className="prose prose-slate w-full max-w-none text-center">
+				<div className="prose w-full max-w-none text-center">
 					<Markdown>{displayMessage}</Markdown>
 				</div>
 			)}
